@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
@@ -51,12 +52,12 @@ public class ClienteServicoI implements ClienteServico {
 				modelAndView.addObject("clientes", clienteRepository.findAll());
 			}
 		} catch (Exception e) {
-			modelAndView.setViewName("cadastrarCliente");
+			modelAndView = new ModelAndView("cadastrarCliente");
 			if (e.getMessage().contains("could not execute statement")) {
 				modelAndView.addObject("message", "Dados invalidos - cliente já cadastrado.");
 				logger.info(">>>>>> 5. cliente ja cadastrado ==> " + e.getMessage());
 			} else {
-				modelAndView.addObject("message", "Erro não esperado - contate o administrador");
+				modelAndView.addObject("message", "Erro não esperado - contate o administrador ==>" + e.getMessage());
 				logger.error(">>>>>> 5. erro nao esperado ==> " + e.getMessage());
 			}
 		}
@@ -67,6 +68,9 @@ public class ClienteServicoI implements ClienteServico {
 		RestTemplate template = new RestTemplate();
 		String url = "https://viacep.com.br/ws/{cep}/json/";
 		Endereco endereco = template.getForObject(url, Endereco.class, cep);
+		ResponseEntity response = template.getForEntity(url, Endereco.class, cep);
+		response.getStatusCode().toString();
+		logger.info(">>>>>> 3. obtem endereco ==> " + response.getStatusCode().toString());
 		logger.info(">>>>>> 3. obtem endereco ==> " + endereco.toString());
 		return endereco;
 	}
