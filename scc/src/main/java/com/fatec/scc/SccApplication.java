@@ -1,6 +1,14 @@
 package com.fatec.scc;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.transaction.Transaction;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.jpa.HibernateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.fatec.scc.controller.ClienteController;
 import com.fatec.scc.model.Usuario;
 import com.fatec.scc.model.UsuarioRepository;
+import com.fatec.scc.model.Usuarios_Papeis;
 @SpringBootApplication
 public class SccApplication {
 	Logger logger = LogManager.getLogger(ClienteController.class);
@@ -41,5 +50,15 @@ public class SccApplication {
 		//insert into roles values ('ROLE_USER')
 		//insert into usuarios_papeis values ('jose','ROLE_ADMIN')
 		//insert into usuarios_papeis values ('maria','ROLE_USER')
+		//EntityManagerFactory emf = Persistence.createEntityManagerFactory();
+	   // EntityManager entityManager = emf.createEntityManager();
+	    Usuarios_Papeis papel = new Usuarios_Papeis();
+	    papel.setUsuario_id("jose");
+	    papel.setRole_id("ROLE_ADMIN");
+	    //entityManager.createNativeQuery("INSERT INTO usuarios_papeis (usuario_id, role_id) VALUES (?,?,?)")
+	    //  .setParameter(1, papel.getRole_id())
+	     // .setParameter(2, papel.getUsuario_id())
+	     
+	   //   .executeUpdate();
 	}
 }
