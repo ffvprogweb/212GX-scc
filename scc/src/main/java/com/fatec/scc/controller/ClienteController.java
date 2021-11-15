@@ -9,7 +9,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import com.fatec.scc.servico.ClienteServico;
 import com.fatec.scc.model.Cliente;
@@ -57,7 +59,27 @@ public class ClienteController {
 		if (result.hasErrors()) {
 			modelAndView.setViewName("cadastrarCliente");
 		} else {
-			modelAndView = servico.saveOrUpdate(cliente);
+			try {
+				servico.save(cliente);
+				modelAndView.addObject("clientes", servico.findAll());
+				logger.error(">>>>>> 5. controller save chamada para consultar clientes ");
+			} catch (HttpClientErrorException e) {
+				modelAndView.addObject("message", "Dados invalidos - 400 Bad Request");
+				modelAndView.setViewName("cadastrarCliente");
+			}
+			catch (Exception e) {
+				modelAndView = new ModelAndView("cadastrarCliente");
+				if (e.getMessage().contains("could not execute statement")) {
+					modelAndView.addObject("message", "Dados invalidos - cliente já cadastrado.");
+					logger.info(">>>>>> 5. cliente ja cadastrado ==> " + e.getMessage());
+					logger.error(">>>>> 5. cliente ja cadastrado ==> " + e.toString());
+				} else {
+					modelAndView.addObject("message","Erro não esperado - contate o administrador ==>" + e.getMessage());
+					logger.error(">>>>> 5. erro nao esperado ==> " + e.getMessage());
+					logger.error(">>>>> 5. erro nao esperado ==> " + e.toString());
+					
+				}
+			}
 		}
 		return modelAndView;
 	}
@@ -75,7 +97,8 @@ public class ClienteController {
 		umCliente.setNome(cliente.getNome());
 		umCliente.setEmail(cliente.getEmail());
 		umCliente.setCep(cliente.getCep());
-		modelAndView = servico.saveOrUpdate(umCliente);
+		servico.save(umCliente);
+		modelAndView.addObject("clientes", servico.findAll());
 		return modelAndView;
 	}
 }

@@ -1,5 +1,7 @@
 package com.fatec.scc.servico;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -38,40 +40,31 @@ public class ClienteServicoI implements ClienteServico {
 		return clienteRepository.findById(id).get();
 	}
 
-	public ModelAndView saveOrUpdate(Cliente cliente) {
-		ModelAndView modelAndView = new ModelAndView("consultarCliente");
-		try {
-			Endereco endereco = obtemEndereco(cliente.getCep());
+	
+    public Cliente save (Cliente cliente) {
+    	
+    		Endereco endereco = obtemEndereco(cliente.getCep());
 			if (endereco != null) {
 				cliente.setDataCadastro(new DateTime());
 				endereco.setCpf(cliente.getCpf());
 				enderecoRepository.save(endereco);
 				cliente.setEndereco(endereco);
 				clienteRepository.save(cliente);
-				logger.info(">>>>>> 4. comando save executado ");
-				modelAndView.addObject("clientes", clienteRepository.findAll());
+				logger.info(">>>>>> 4. servico comando save executado ");
+				
 			}
-		} catch (Exception e) {
-			modelAndView = new ModelAndView("cadastrarCliente");
-			if (e.getMessage().contains("could not execute statement")) {
-				modelAndView.addObject("message", "Dados invalidos - cliente já cadastrado.");
-				logger.info(">>>>>> 5. cliente ja cadastrado ==> " + e.getMessage());
-			} else {
-				modelAndView.addObject("message", "Erro não esperado - contate o administrador ==>" + e.getMessage());
-				logger.error(">>>>>> 5. erro nao esperado ==> " + e.getMessage());
-			}
-		}
-		return modelAndView;
-	}
-
+		
+    	return null;
+    }
 	public Endereco obtemEndereco(String cep) {
 		RestTemplate template = new RestTemplate();
 		String url = "https://viacep.com.br/ws/{cep}/json/";
-		Endereco endereco = template.getForObject(url, Endereco.class, cep);
-		ResponseEntity response = template.getForEntity(url, Endereco.class, cep);
-		response.getStatusCode().toString();
+		//Endereco endereco = template.getForObject(url, Endereco.class, cep);
+		ResponseEntity<Endereco> response = template.getForEntity(url, Endereco.class, cep);
+		Endereco endereco = response.getBody();
 		logger.info(">>>>>> 3. obtem endereco ==> " + response.getStatusCode().toString());
 		logger.info(">>>>>> 3. obtem endereco ==> " + endereco.toString());
 		return endereco;
 	}
+	
 }
