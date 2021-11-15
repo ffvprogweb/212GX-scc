@@ -40,31 +40,29 @@ public class ClienteServicoI implements ClienteServico {
 		return clienteRepository.findById(id).get();
 	}
 
-	
-    public Cliente save (Cliente cliente) {
-    	
-    		Endereco endereco = obtemEndereco(cliente.getCep());
-			if (endereco != null) {
-				cliente.setDataCadastro(new DateTime());
-				endereco.setCpf(cliente.getCpf());
-				enderecoRepository.save(endereco);
-				cliente.setEndereco(endereco);
-				clienteRepository.save(cliente);
-				logger.info(">>>>>> 4. servico comando save executado ");
-				
-			}
-		
-    	return null;
-    }
+	public Cliente save(Cliente cliente) {
+
+		Endereco endereco = obtemEndereco(cliente.getCep());
+		if (endereco != null) {
+			cliente.setDataCadastro(new DateTime());
+			endereco.setCpf(cliente.getCpf());
+			enderecoRepository.save(endereco);
+			cliente.setEndereco(endereco);
+			logger.info(">>>>>> 4. servico save executado ");
+			clienteRepository.save(cliente);
+		}
+		return null;
+	}
+
 	public Endereco obtemEndereco(String cep) {
 		RestTemplate template = new RestTemplate();
 		String url = "https://viacep.com.br/ws/{cep}/json/";
-		//Endereco endereco = template.getForObject(url, Endereco.class, cep);
+		// Endereco endereco = template.getForObject(url, Endereco.class, cep);
 		ResponseEntity<Endereco> response = template.getForEntity(url, Endereco.class, cep);
 		Endereco endereco = response.getBody();
 		logger.info(">>>>>> 3. obtem endereco ==> " + response.getStatusCode().toString());
 		logger.info(">>>>>> 3. obtem endereco ==> " + endereco.toString());
 		return endereco;
 	}
-	
+
 }

@@ -1,9 +1,11 @@
 package com.fatec.scc.controller;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,19 +68,19 @@ public class ClienteController {
 			} catch (HttpClientErrorException e) {
 				modelAndView.addObject("message", "Dados invalidos - 400 Bad Request");
 				modelAndView.setViewName("cadastrarCliente");
+			} catch (ConstraintViolationException e) {
+				modelAndView.addObject("message", "Dados invalidos - constraint violation");
+				modelAndView.setViewName("cadastrarCliente");
+			}catch (DataIntegrityViolationException e) {
+				modelAndView.addObject("message", "Dados invalidos - cliente já cadastrado.");
+				modelAndView.setViewName("cadastrarCliente"); 
 			}
 			catch (Exception e) {
 				modelAndView = new ModelAndView("cadastrarCliente");
-				if (e.getMessage().contains("could not execute statement")) {
-					modelAndView.addObject("message", "Dados invalidos - cliente já cadastrado.");
-					logger.info(">>>>>> 5. cliente ja cadastrado ==> " + e.getMessage());
-					logger.error(">>>>> 5. cliente ja cadastrado ==> " + e.toString());
-				} else {
-					modelAndView.addObject("message","Erro não esperado - contate o administrador ==>" + e.getMessage());
-					logger.error(">>>>> 5. erro nao esperado ==> " + e.getMessage());
-					logger.error(">>>>> 5. erro nao esperado ==> " + e.toString());
-					
-				}
+				modelAndView.addObject("message", "Erro não esperado - contate o administrador ==>" + e.getMessage());
+				logger.error(">>>>> 5. erro nao esperado ==> " + e.getMessage());
+				logger.error(">>>>> 5. erro nao esperado ==> " + e.toString());
+
 			}
 		}
 		return modelAndView;
@@ -93,6 +95,7 @@ public class ClienteController {
 		}
 // programacao defensiva - deve-se verificar se o Cliente existe antes de atualizar
 		Cliente umCliente = servico.findById(id);
+		umCliente.setId(id);
 		umCliente.setCpf(cliente.getCpf());
 		umCliente.setNome(cliente.getNome());
 		umCliente.setEmail(cliente.getEmail());
